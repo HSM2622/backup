@@ -4,7 +4,6 @@ import { barcodeRequest, infoRequest } from "../utils/request";
 import Quagga from "quagga";
 import Image from "next/image";
 import CommonLayout from "../components/layout/CommonLayout";
-import axios from "axios";
 
 const Barcode = () => {
   const [src, setSrc] = useState("");
@@ -12,10 +11,6 @@ const Barcode = () => {
   const [name, setName] = useState("");
   const [data, setData] = useState({});
   const [showData, setShowData] = useState({});
-
-  (async () => {
-    await axios.get("/api/barcode/test");
-  })();
 
   const encodeFileToBase64 = (fileBlob) => {
     const reader = new FileReader();
