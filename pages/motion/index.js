@@ -82,7 +82,7 @@ const Motion = () => {
   }
   
   const onClickSaveButton = () => {
-    request
+    axios
       .post('api/motion/save', { type, count, time: _TIME, score: count })
       .then((res) => console.log(res.data))
       .catch((err) => console.error(err));
