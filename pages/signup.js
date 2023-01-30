@@ -5,14 +5,22 @@ import Image from "next/image";
 import loginpage from "../public/loginpage.png"
 import visible_icon from "../public/visible_icon.png"
 import invisible_icon from "../public/invisible_icon.png"
+import image1 from "../public/image1.png"
 import image2 from "../public/image2.png"
+import title from "../public/title.png"
 
 const signup = () => {
+  const postFlag = false;
     const onClickPostButton = () => {
+      if (pwCheck && emailCheck && phoneCheck && evfcheck)
+      postFlag = true;
+      if (postFlag)
         axios
           .post('api/signup/post')
           .then((res) => console.log(res.data))
           .catch((err) => console.error(err));
+          else
+          alert('확인되지 않은 정보가 있습니다.');
       }
 
       const [PhoneNumber, setPhoneNumber] = useState("");
@@ -21,6 +29,7 @@ const signup = () => {
       const [PasswordMsg, setPasswordMsg] = useState("");
       const [UserEmail, setUserEmail] = useState("");
       const [EmailMsg, setEmailMsg] = useState("");
+      const [EvfMsg, setEvfMsg] = useState("");
 
       const onPasswordHandler = (event) => {
         setPassword(event.currentTarget.value);
@@ -37,6 +46,9 @@ const signup = () => {
       const onEmailMsgHandler = (event) => {
         setEmailMsg(event.currentTarget.value);
     }
+      const onEvfHandler = (event) => {
+        setEvfMsg(event.currentTarget.value);
+    }
 
       let emailCheck = false;
 const onEmailCheck = async () => {
@@ -46,10 +58,9 @@ const onEmailCheck = async () => {
             const sreg = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/;
             
             if (UserEmail.match(reg) || UserEmail.match(sreg)) {
-                let data = await axios.get(`api/signup/emailCheck?useremail=${UserEmail}`);
+                let data = await axios.get(`api/signup/emailCheck/${UserEmail}`);
                 console.log(data, '데이터');    
                 login_flag = data.data.login;
-                console.log(login_flag, '로그인플래그');
                 if (login_flag) {
                     EmailMsg.innerHTML = "사용할수 있는 이메일 입니다.";
                     EmailMsg.style.color = 'green';
@@ -74,6 +85,33 @@ const onEmailCheck = async () => {
     }
   }
 
+  let evfcheck = false;
+  let sendEvfcode = '';
+    const onEmailSend = async () => {
+      console.log("코드 보냄")
+      setUserEmail(event.currentTarget.value);
+      setEvfMsg(event.currentTarget.value);
+      console.log(useremail, "이메일");
+      try {
+          if (useremail) {
+              if (!emailCheck) {
+                  EvfMsg.innerHTML = "이메일을 확인해주세요";
+                  EvfMsg.style.color = 'red';
+                  return ;
+              }
+              const data = await axios.get(`/signup/evf/${useremail}`);
+              sendEvfcode = data.data.sendEvfcode;
+              alert('인증번호가 전송되었습니다. 이메일을 확인해주세요');
+          } else {
+              EvfMsg.innerHTML = "이메일을 확인해주세요";
+              EvfMsg.style.color = 'red';
+          }
+          console.log(evfcheck);
+      } catch (err) {
+          console.error(err);
+      }
+  };
+
 
       let phoneCheck = false;
       const onPhoneNumberHandler = (e) => {
@@ -87,12 +125,12 @@ const onEmailCheck = async () => {
         }
         return phoneCheck = true;
       }
-      // const onPhoneCheckHandler = (e) => {
-      // }
 
 
       let pwCheck = false;
       const onPwcheck = (e) => {
+        onPasswordHandler();
+        onPasswordConfirmHandler();
           if (Password && PasswordConfirm) {
               if (Password === PasswordConfirm) {
                   PasswordMsg.innerHTML = "비밀번호가 일치합니다.";
@@ -110,9 +148,9 @@ const onEmailCheck = async () => {
   return (
     <CommonLayout>
       <div className='loginPage'>
-      <Image src={loginpage} className="w-full" alt="loginpage"/>
+        <Image src={loginpage} className="loginPageChild" alt="loginpage"/>
       <div className='wrapper'>
-        <div className='backg' />
+        <div className='wrapper_backg' />
         <div className='loginb' />
         <div className='findAPassword'>
           <div className='reset'>
@@ -131,9 +169,9 @@ const onEmailCheck = async () => {
               <div className='box2' />
               <div className='text'>비밀번호 확인</div>
               <div className='invisibleIcon'>
-              <Image src={visible_icon} className="w-full" alt="visible_icon"/>
+              <Image src={visible_icon} className="visibleIcon" alt="visible_icon"/>
                 <div className='invisible'>
-                <Image src={invisible_icon} className="w-full" alt="invisible_icon"/>
+                <Image src={invisible_icon} className="invisibleChild" alt="invisible_icon"/>
                 </div>
               </div>
               <div className='null'>null</div>
@@ -146,11 +184,9 @@ const onEmailCheck = async () => {
               <div className='box2' />
               <div className='text1'>비밀번호</div>
               <div className='invisibleIcon'>
-              <Image src={visible_icon} className="w-full" alt="visible_icon"/>
-                
+              <Image src={visible_icon} className="visibleIcon" alt="visible_icon"/>
                 <div className='invisible'>
-                  <Image src={invisible_icon} className="w-full" alt="invisible_icon"/>
-                  
+                  <Image src={invisible_icon} className="invisibleChild" alt="invisible_icon"/>
                 </div>
               </div>
               <div className='null'>null</div>
@@ -158,7 +194,7 @@ const onEmailCheck = async () => {
             <div className='div3'>새로운 비밀번호를 입력하세요.</div>
             <b className='b'>비밀번호 재설정</b>
             <div className='unlockImage'>
-            <Image src={image2} className="w-full" alt="image2"/>
+            <Image src={image2} className="invisibleChild" alt="image2"/>
               <div className='unlock' />
             </div>
           </div>
@@ -204,11 +240,7 @@ const onEmailCheck = async () => {
             </div>
             <b className='b'>비밀번호 찾기</b>
             <div className='unlockImage'>
-              <img
-                className='invisibleChild'
-                alt=""
-                src="../lock-image@2x.png"
-              />
+            <Image src={image2} className="invisibleChild" alt="image2"/>
               <div className='unlock' />
             </div>
           </div>
@@ -224,7 +256,7 @@ const onEmailCheck = async () => {
               <div className='div'>계정 생성</div>
             </div>
           </div>
-          <img className='checkBoxIcon' alt="" src="../check-box.svg" />
+          <input type='checkbox' className='checkBoxIcon' value='agree'/>
           <div className='div12'>
             <span>서비스 약관</span>
             <span className='span'>{`과 `}</span>
@@ -235,22 +267,9 @@ const onEmailCheck = async () => {
             <div className='box2' />
             <div className='text'>비밀번호 확인</div>
             <div className='invisibleIcon'>
-              <img
-                className='visibleIcon'
-                alt=""
-                src="../visible@2x.png"
-              />
+            <Image src={visible_icon} className="visibleIcon" alt="visible_icon"/>
               <div className='invisible'>
-                <img
-                  className='invisibleChild'
-                  alt=""
-                  src="../visible@2x.png"
-                />
-                <img
-                  className='invisibleItem'
-                  alt=""
-                  src="../line-7.svg"
-                />
+              <Image src={invisible_icon} className="invisibleChild" alt="invisible_icon"/>
               </div>
             </div>
             <div className='null'>null</div>
@@ -263,22 +282,9 @@ const onEmailCheck = async () => {
             <div className='box2' />
             <div className='text1'>비밀번호</div>
             <div className='invisibleIcon'>
-              <img
-                className='visibleIcon'
-                alt=""
-                src="../visible@2x.png"
-              />
+            <Image src={visible_icon} className="visibleIcon" alt="visible_icon"/>
               <div className='invisible'>
-                <img
-                  className='invisibleChild'
-                  alt=""
-                  src="../visible@2x.png"
-                />
-                <img
-                  className='invisibleItem'
-                  alt=""
-                  src="../line-7.svg"
-                />
+              <Image src={invisible_icon} className="invisibleChild" alt="invisible_icon"/>
               </div>
             </div>
             <div className='null'>null</div>
@@ -307,11 +313,7 @@ const onEmailCheck = async () => {
             </div>
           </div>
           <b className='b2'>계정 만들기</b>
-          <img
-            className='lockImageIcon2'
-            alt=""
-            src="../lock-image@2x.png"
-          />
+          <Image src={image2} className="lockImageIcon2" alt="image2"/>
         </div>
         <div className='signIn'>
           <div className='div15'>비밀번호를 잊으셨나요?</div>
@@ -331,22 +333,9 @@ const onEmailCheck = async () => {
             <div className='box2' />
             <div className='text6'>비밀번호</div>
             <div className='invisibleIcon'>
-              <img
-                className='visibleIcon4'
-                alt=""
-                src="../visible@2x.png"
-              />
+            <Image src={visible_icon} className="visibleIcon" alt="visible_icon"/>
               <div className='invisible'>
-                <img
-                  className='invisibleChild'
-                  alt=""
-                  src="../visible@2x.png"
-                />
-                <img
-                  className='invisibleChild5'
-                  alt=""
-                  src="../line-7.svg"
-                />
+              <Image src={invisible_icon} className="invisibleChild" alt="invisible_icon"/>
               </div>
             </div>
           </div>
@@ -361,8 +350,8 @@ const onEmailCheck = async () => {
             src="../login-image@2x.png"
           />
         </div>
-        <img className='imagebIcon' alt="" src="../imageb@2x.png" />
-        <img className='logoIcon' alt="" src="../logo@2x.png" />
+        <Image src={image1} className="imagebIcon" alt="image1"/>
+        <Image src={title} className="logoIcon" alt="title"/>
       </div>
     </div>
     </CommonLayout>
