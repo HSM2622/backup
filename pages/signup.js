@@ -96,8 +96,8 @@ const signup = () => {
     let sendEvfcode = "";
     const onEmailSend = async () => {
         console.log("코드 보냄");
-        setUserEmail(event.currentTarget.value);
-        setEvfMsg(event.currentTarget.value);
+        // setUserEmail(event.currentTarget.value);
+        // setEvfMsg(event.currentTarget.value);
         console.log(useremail, "이메일");
         try {
             if (useremail) {
@@ -119,7 +119,7 @@ const signup = () => {
 
     let phoneCheck = false;
     const onPhoneNumberHandler = (event) => {
-        setPhoneNumber(event.currentTarget.value);
+        // setPhoneNumber(event.currentTarget.value);
         const firstTel = PhoneNumber.substring(0, 3);
         if (PhoneNumber.length !== 11) {
             return (phoneCheck = false);
@@ -132,8 +132,6 @@ const signup = () => {
 
     let pwCheck = false;
     const onPwcheck = (event) => {
-        onPasswordHandler();
-        onPasswordConfirmHandler();
         if (Password && PasswordConfirm) {
             if (Password === PasswordConfirm) {
                 setPasswordMsg("비밀번호가 일치합니다.");
@@ -208,7 +206,7 @@ const signup = () => {
                         <div className={styles.email1}>
                             <div className={styles.box2} />
                             <input
-                                type="text"
+                                type="email"
                                 className={styles.null}
                                 onChange={onUserEmailHandler}
                                 defaultValue={UserEmail}
@@ -253,7 +251,7 @@ const signup = () => {
                                 </div>
                             </div>
                             <input
-                                type="input"
+                                type="password"
                                 className={styles.null1}
                                 onChange={onPasswordHandler}
                                 defaultValue={Password}
